@@ -1,5 +1,4 @@
 import socket
-import sys
 import os
 import struct
 
@@ -8,6 +7,8 @@ ip = "127.0.0.1"
 port = 1235
 buffer_size = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+messages = []
 
 
 def connection():
@@ -42,7 +43,9 @@ def upload(file_name):
         print("\n Start sending the file:\n")
         while l:
             s.send(l)
-            print(f"Chunk {chunk_number} is sent...")
+            message = f"Chunk {chunk_number} is sent..."
+            messages.append(message)
+            print(message)
             chunk_number += 1
             l = content.read(buffer_size)
         content.close()
@@ -57,8 +60,14 @@ def upload(file_name):
     return
 
 
-while True:
-    connection()
-    upload('icon.jpg')
-    # Listen for a command
-    prompt = input("\n")
+def getClientMessages():
+    return messages
+
+
+def startClient():
+    while True:
+        connection()
+        print(os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.jpg"))
+        upload(os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.jpg"))
+
+        prompt = input("\n")

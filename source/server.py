@@ -7,6 +7,8 @@ ip = "127.0.0.1"
 port = 1235
 buffer_size = 1024
 
+messages = []
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((ip, port))
 print(f"\nServer binded on ip: {ip} and port: {port}")
@@ -14,8 +16,6 @@ print(f"\nServer binded on ip: {ip} and port: {port}")
 s.listen(1)
 print(f"\nServer listening, waiting for connections...")
 
-# clientsocket, address = s.accept()
-# print(f"\nConnected to by address: {address}")
 
 
 def upload(connection, address):
@@ -30,7 +30,9 @@ def upload(connection, address):
     chunk_number = 0
     while bytes_recieved < file_size:
         l = connection.recv(buffer_size)
-        print(f"Chunk {chunk_number} is Received...")
+        message = f"Chunk {chunk_number} is Received..."
+        messages.append(message)
+        print(message)
         chunk_number += 1
         output_file.write(l)
         bytes_recieved += buffer_size
@@ -42,9 +44,16 @@ def upload(connection, address):
     return
 
 
-threadCounter = 0
-while 1:
-    (clientsocket, address) = s.accept()
-    start_new_thread(upload, (clientsocket, address))
-    threadCounter = threadCounter + 1
-    print("Client "+str(threadCounter) + " is  Connected ")
+def getServerMessages():
+    return messages
+
+
+def startServer():
+    threadCounter = 0
+    while 1:
+        (clientsocket, address) = s.accept()
+        start_new_thread(upload, (clientsocket, address))
+        threadCounter = threadCounter + 1
+        print("Client " + str(threadCounter) + " is  Connected ")
+
+    clientsocket.close()
